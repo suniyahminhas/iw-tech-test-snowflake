@@ -91,9 +91,8 @@ if __name__ == "__main__":
         + ["fruit_veg"] * 25
         + ["sweets"] * 20
         + ["food"] * 25
-        + ["bws"] * 10
     )
-
+#NOTE: FROM SUNI: DELETED 'bws' factor here!!!
     gen_id = "starter"
     output_location = f"./input_data/{gen_id}"
     os.makedirs(output_location, exist_ok=True)
