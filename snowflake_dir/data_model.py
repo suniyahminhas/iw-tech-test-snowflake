@@ -1,6 +1,7 @@
 from snowflake_dir.snowflake_connect import SnowflakeConnection
 import yaml
 from snowflake_dir.sql_statements import SQLGenerator
+import infra.aws_pys3 as aws
 
 
 class DBModel():
@@ -15,15 +16,16 @@ class DBModel():
             return credentials
 
     def execute_sql(self):
+        self.conn.cursor().execute("USE SCHEMA INFINITY_WORKS_2021_01_31.PUBLIC;")
         self.conn.cursor().execute(self.sql.create_stage())
         self.conn.cursor().execute(self.sql.cust_table())
         self.conn.cursor().execute(self.sql.cust_file_format())
-        self.conn.cursor().execute(self.sql.copy_into_customers())
+        self.conn.cursor().execute(self.sql.pipe_customers())
         self.conn.cursor().execute(self.sql.product_table())
-        self.conn.cursor().execute(self.sql.copy_into_product())
+        self.conn.cursor().execute(self.sql.pipe_product())
         self.conn.cursor().execute(self.sql.tran_file_format())
         self.conn.cursor().execute(self.sql.transactions_table())
-        self.conn.cursor().execute(self.sql.copy_into_transactions())
+        self.conn.cursor().execute(self.sql.pipe_transactions())
         self.conn.cursor().execute(self.sql.transaction_data_view())
         self.conn.cursor().execute(self.sql.final_view())
         print("finish")
@@ -32,3 +34,4 @@ class DBModel():
 if __name__ == '__main__':
     dbmod = DBModel()
     dbmod.execute_sql()
+    aws.main()

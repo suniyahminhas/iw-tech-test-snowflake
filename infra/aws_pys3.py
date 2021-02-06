@@ -18,11 +18,11 @@ walks = os.walk(local_folder)
 
 def main():
     """entry point"""
-    access = os.environ['ACCESS_KEY']
-    secret = os.environ['SECRET_KEY']
+    access = 'AKIAWBJZDLJM4VMJ4K7Q' #os.environ['ACCESS_KEY']
+    secret = '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' #os.environ['SECRET_KEY']
     s3 = boto3.resource('s3', aws_access_key_id=access, aws_secret_access_key=secret)
 
-    create_bucket(bucket_name, s3)
+    # create_bucket(bucket_name, s3)
     upload_directory(s3)
     # delete_bucket(bucket_name, s3)
 

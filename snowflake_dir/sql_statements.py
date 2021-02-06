@@ -25,11 +25,6 @@ class SQLGenerator():
         return f"""CREATE OR REPLACE FILE FORMAT CUSTOMER_FILE_FORMAT
                     TYPE = 'CSV' SKIP_HEADER=1;"""
 
-    def copy_into_customers(self):
-        return f"""COPY INTO CUSTOMERS
-            FROM @MY_BUCKET//
-            FILES = ('customers.csv')
-            FILE_FORMAT = (FORMAT_NAME = CUSTOMER_FILE_FORMAT);"""
 
     def product_table(self):
         return f"""CREATE OR REPLACE TABLE PRODUCTS (
@@ -37,25 +32,33 @@ class SQLGenerator():
                 product_description VARCHAR(250),
                 product_category VARCHAR(250));"""
 
-    def copy_into_product(self):
-        return f"""COPY INTO products
-                FROM @MY_BUCKET//
-                FILES = ('products.csv')
-                FILE_FORMAT = (FORMAT_NAME = CUSTOMER_FILE_FORMAT);"""
-
-
-    def tran_file_format(self):
-        return f"""CREATE FILE FORMAT TRANSACTIONS_FILE_FORMAT TYPE = 'JSON';"""
 
     def transactions_table(self):
         return f"""CREATE OR REPLACE TABLE TRANSACTIONS (
                 transaction VARIANT);"""
 
-    def copy_into_transactions(self):
-        return f"""COPY INTO TRANSACTIONS
-            FROM @MY_BUCKET/transactions
-            FILE_FORMAT = (FORMAT_NAME = TRANSACTIONS_FILE_FORMAT);"""
 
+    def tran_file_format(self):
+        return f"""CREATE FILE FORMAT TRANSACTIONS_FILE_FORMAT TYPE = 'JSON';"""
+
+
+    def pipe_customers(self):
+        return f"""create pipe customers_pipe auto_ingest = true as
+                    COPY INTO CUSTOMERS
+                    FROM @MY_BUCKET//customers
+                    FILE_FORMAT = (FORMAT_NAME = CUSTOMER_FILE_FORMAT);"""
+
+    def pipe_product(self):
+        return f"""create pipe products_pipe auto_ingest = true as
+                    COPY INTO products
+                    FROM @MY_BUCKET//products
+                    FILE_FORMAT = (FORMAT_NAME = CUSTOMER_FILE_FORMAT);"""
+
+    def pipe_transactions(self):
+        return f"""create pipe transactions_pipe auto_ingest = true as
+                        COPY INTO TRANSACTIONS
+                        FROM @MY_BUCKET/transactions
+                        FILE_FORMAT = (FORMAT_NAME = TRANSACTIONS_FILE_FORMAT);"""
 
     def transaction_data_view(self):
         return f"""CREATE OR REPLACE VIEW TRANSACTION_DATA AS
