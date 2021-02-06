@@ -1,6 +1,9 @@
+integration:
+  name: iw2021
+  arn: arn:aws:iam::415120972377:role/snowflake_role2
 stage:
   name: "MY_BUCKET"
-  bucket: "iw2021purchases"
+  bucket: "suniminhas20210206"
 file_format:
   csv_file_format:
     name: "CSV_FILE_FORMAT"

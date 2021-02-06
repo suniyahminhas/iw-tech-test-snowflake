@@ -1,7 +1,7 @@
 from snowflake_dir.snowflake_connect import SnowflakeConnection
 import yaml
-import infra.aws_pys3 as aws
-from snowflake_dir.data_objects import Stage, Table, File_Format, Pipe, View
+from infra.aws_pys3 import AWS_Connect
+from snowflake_dir.data_objects import Stage, Table, File_Format, Pipe, View, Integration
 
 
 class DBModel():
@@ -20,6 +20,14 @@ class DBModel():
         with open(file_loc) as obj_details:
             credentials = yaml.load(obj_details, Loader=yaml.FullLoader)
             return credentials
+
+    def create_integration(self):
+        integration_properties = (self.object_properties.get('integration'),
+                                  self.object_properties.get('stage').get('bucket'))
+        Integration(self.conn).create_object(integration_properties)
+        print(f'Storage Integration created')
+
+        return Integration(self.conn).get_integration_props(self.object_properties.get('integration'))
 
     def execute_sql(self):
         self.create_stage()
@@ -53,8 +61,20 @@ class DBModel():
             View(self.conn).create_object(view_properties)
             print(f'{view} created')
 
+    def get_pipe_arn(self):
+        return Pipe(self.conn).get_arn(self.get_db_credentials())
+
 
 if __name__ == '__main__':
     dbmod = DBModel()
-    dbmod.execute_sql()
-    aws.main()
+    aws = AWS_Connect()
+    # aws.create_bucket()
+    # STORAGE_AWS_EXTERNAL_ID, STORAGE_AWS_IAM_USER_ARN = dbmod.create_integration()
+    # aws.update_trust(STORAGE_AWS_EXTERNAL_ID, STORAGE_AWS_IAM_USER_ARN)
+    # dbmod.execute_sql()
+    arn = dbmod.get_pipe_arn()
+    aws.notifications(arn)
+    aws.upload_directory()
+
+
+

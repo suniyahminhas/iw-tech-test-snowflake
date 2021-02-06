@@ -1,3 +1,5 @@
+import pandas as pd
+
 class DBObject():
     def __init__(self, conn):
         self.conn = conn
@@ -54,12 +56,35 @@ class Pipe(DBObject):
                     FROM @{stage_name}/{table_properties.get('bucket_path')}
                     FILE_FORMAT = (FORMAT_NAME = {file_format_name});"""
 
+    def get_arn(self, properties):
+        df = pd.read_sql(f'SHOW PIPES IN SCHEMA {properties.get("schema")};', self.conn)
+        return df["notification_channel"][0]
+
 class View(DBObject):
     def __init__(self, conn):
         DBObject.__init__(self, conn=conn)
 
     def create_ddl(self, properties):
         return f"""create or replace view {properties.get('name')} as\n{properties.get('definition')};"""
+
+
+class Integration(DBObject):
+    def __init__(self, conn):
+        DBObject.__init__(self, conn=conn)
+
+    def create_ddl(self, properties):
+        int_properties, bucket = properties
+        return f"""CREATE STORAGE INTEGRATION {int_properties.get('name')}
+                      TYPE = EXTERNAL_STAGE
+                      STORAGE_PROVIDER = S3
+                      ENABLED = TRUE
+                      STORAGE_AWS_ROLE_ARN = '{int_properties.get('arn')}'
+                      STORAGE_ALLOWED_LOCATIONS = ('s3://{bucket}');"""
+
+    def get_integration_props(self, properties):
+        df = pd.read_sql(f"DESC INTEGRATION {properties.get('name')};", self.conn)
+        df = df.set_index("property")
+        return df["property_value"]["STORAGE_AWS_EXTERNAL_ID"], df["property_value"]["STORAGE_AWS_IAM_USER_ARN"]
 
 
 if __name__ == '__main__':
