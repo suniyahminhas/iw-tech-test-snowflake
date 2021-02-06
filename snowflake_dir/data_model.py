@@ -32,4 +32,3 @@ class DBModel():
 if __name__ == '__main__':
     dbmod = DBModel()
     dbmod.execute_sql()
-
