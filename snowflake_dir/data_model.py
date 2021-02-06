@@ -1,13 +1,13 @@
 from snowflake_dir.snowflake_connect import SnowflakeConnection
 import yaml
-from snowflake_dir.sql_statements import SQLGenerator
 import infra.aws_pys3 as aws
+from snowflake_dir.data_objects import Stage, Table, File_Format, Pipe, View
 
 
 class DBModel():
     def __init__(self):
         self.conn = SnowflakeConnection(**self.get_db_credentials()).get_conn()
-        self.sql = SQLGenerator()
+        self.object_properties = self.get_obj_details()
 
     def get_db_credentials(self):
         file_loc = '../config/snowflake_credentials.yml'
@@ -15,20 +15,43 @@ class DBModel():
             credentials = yaml.load(db_credentials, Loader=yaml.FullLoader)
             return credentials
 
+    def get_obj_details(self):
+        file_loc = '../config/object_details.yml'
+        with open(file_loc) as obj_details:
+            credentials = yaml.load(obj_details, Loader=yaml.FullLoader)
+            return credentials
+
     def execute_sql(self):
-        self.conn.cursor().execute("USE SCHEMA INFINITY_WORKS_2021_01_31.PUBLIC;")
-        self.conn.cursor().execute(self.sql.create_stage())
-        self.conn.cursor().execute(self.sql.cust_table())
-        self.conn.cursor().execute(self.sql.cust_file_format())
-        self.conn.cursor().execute(self.sql.pipe_customers())
-        self.conn.cursor().execute(self.sql.product_table())
-        self.conn.cursor().execute(self.sql.pipe_product())
-        self.conn.cursor().execute(self.sql.tran_file_format())
-        self.conn.cursor().execute(self.sql.transactions_table())
-        self.conn.cursor().execute(self.sql.pipe_transactions())
-        self.conn.cursor().execute(self.sql.transaction_data_view())
-        self.conn.cursor().execute(self.sql.final_view())
-        print("finish")
+        self.create_stage()
+        self.create_file_format()
+        self.create_tables_and_pipes()
+        self.create_views()
+
+    def create_stage(self):
+        stage_properties = self.object_properties.get('stage')
+        Stage(self.conn).create_object(stage_properties)
+
+    def create_file_format(self):
+        for file_format, file_format_properties in self.object_properties.get('file_format').items():
+            File_Format(self.conn).create_object(file_format_properties)
+            print(f'{file_format} created')
+
+    def create_tables_and_pipes(self):
+        for table, table_properties in self.object_properties.get('table').items():
+            Table(self.conn).create_object(table_properties)
+            print(f'{table} created')
+
+            table_file_format = table_properties.get('file_format')
+            pipe_properties = (table_properties,
+                               self.object_properties.get('file_format').get(table_file_format).get('name'),
+                               self.object_properties.get('stage').get('name'))
+            Pipe(self.conn).create_object(pipe_properties)
+            print(f'{table}_PIPE created')
+
+    def create_views(self):
+        for view, view_properties in self.object_properties.get('view').items():
+            View(self.conn).create_object(view_properties)
+            print(f'{view} created')
 
 
 if __name__ == '__main__':
