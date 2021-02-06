@@ -1,1 +1,7 @@
-aws: "iw2021purchases"
+aws_bucket: "iw2021purchases"
+customers_table:
+  table_name: "CUSTOMERS"
+  table_cols:
+    customer_id: "VARCHAR(10)"
+    loyalty_score: "INTEGER"
+
