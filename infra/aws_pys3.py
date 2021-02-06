@@ -9,7 +9,9 @@ from botocore.exceptions import NoCredentialsError, ClientError
 ACCESS_KEY = 'AWS_ACCESS_KEY_ID'
 SECRET_KEY = 'AWS_SECRET_ACCESS_KEY'
 AWS_DEFAULT_REGION = 'AWS_DEFAULT_REGION'
+# bucket_name = 'iw2021purchases'
 bucket_name = 'iw2021purchases'
+
 local_folder = '../input_data/starter/'
 s3_folder = 'infinity_works'
 walks = os.walk(local_folder)
@@ -23,8 +25,22 @@ def main():
     s3 = boto3.resource('s3', aws_access_key_id=access, aws_secret_access_key=secret)
 
     # create_bucket(bucket_name, s3)
-    upload_directory(s3)
+    # do this after pipes have been implemented and you have arn code
+    notifications(s3, 'arn:aws:sqs:us-east-1:270302263326:sf-snowpipe-AIDAT532FHAPF73NNMW7U-J4G4DZckgFAYLfTwFfOmHg')
+    # upload_directory(s3)
     # delete_bucket(bucket_name, s3)
+
+def notifications(s3, arn):
+    bucket_notification = s3.BucketNotification(bucket_name)
+    response = bucket_notification.put(NotificationConfiguration={
+        'QueueConfigurations': [
+            {
+                'Id': 'snowflake',
+                'QueueArn': arn,
+                'Events': ['s3:ObjectCreated:*'],
+            },
+        ]
+    })
 
 
 def create_bucket(name, s3):
