@@ -1,19 +1,21 @@
 import pandas as pd
 
 class DBObject():
-    def __init__(self, conn):
+    def __init__(self, conn, object):
         self.conn = conn
+        self.object = object
 
     def create_object(self, properties):
         self.conn.cursor().execute(self.create_ddl(properties))
 
-    def create_ddl(self, properties):
-        pass
+    def drop_object(self, name):
+        self.conn.cursor().execute(f'DROP {self.object} {name};')
+        print("done")
 
 
 class Stage(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="STAGE")
 
     def create_ddl(self, properties):
         return f"""CREATE OR REPLACE STAGE {properties.get('name')}
@@ -25,7 +27,7 @@ class Stage(DBObject):
 
 class Table(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="TABLE")
 
     def create_ddl(self, properties):
         ddl = f"""CREATE OR REPLACE TABLE {properties.get('name')} ("""
@@ -37,7 +39,7 @@ class Table(DBObject):
 
 class File_Format(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="FILE FORMAT")
 
     def create_ddl(self, properties):
         skip_header = f" SKIP_HEADER = {properties.get('skip_header')}" if properties.get('skip_header') >= 1 else ""
@@ -47,7 +49,7 @@ class File_Format(DBObject):
 
 class Pipe(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="PIPE")
 
     def create_ddl(self, properties):
         table_properties, file_format_name, stage_name = properties
@@ -62,7 +64,7 @@ class Pipe(DBObject):
 
 class View(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="VIEW")
 
     def create_ddl(self, properties):
         return f"""create or replace view {properties.get('name')} as\n{properties.get('definition')};"""
@@ -70,7 +72,7 @@ class View(DBObject):
 
 class Integration(DBObject):
     def __init__(self, conn):
-        DBObject.__init__(self, conn=conn)
+        DBObject.__init__(self, conn=conn, object="STORAGE INTEGRATION")
 
     def create_ddl(self, properties):
         int_properties, bucket = properties
@@ -87,5 +89,3 @@ class Integration(DBObject):
         return df["property_value"]["STORAGE_AWS_EXTERNAL_ID"], df["property_value"]["STORAGE_AWS_IAM_USER_ARN"]
 
 
-if __name__ == '__main__':
-    pass

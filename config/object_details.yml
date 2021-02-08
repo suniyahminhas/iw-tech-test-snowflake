@@ -1,43 +1,46 @@
+aws:
+  data_path: input_data/starter/
+  role_for_trust: snowflake_role2
 integration:
   name: iw2021
   arn: arn:aws:iam::415120972377:role/snowflake_role2
 stage:
-  name: "MY_BUCKET"
-  bucket: "suniminhas20210206"
+  name: MY_BUCKET
+  bucket: suniminhas20210206111
 file_format:
   csv_file_format:
-    name: "CSV_FILE_FORMAT"
-    type: "CSV"
+    name: CSV_FILE_FORMAT
+    type: CSV
     skip_header: 1
   json_file_format:
-    name: "JSON_FILE_FORMAT"
-    type: "JSON"
+    name: JSON_FILE_FORMAT
+    type: JSON
     skip_header: 0
 table:
   customers_table:
-    name: "CUSTOMERS"
+    name: CUSTOMERS
     file_format: csv_file_format
-    bucket_path: "/customers"
+    bucket_path: /customers
     table_cols:
-      customer_id: "VARCHAR(10)"
-      loyalty_score: "INTEGER"
+      customer_id: VARCHAR(10)
+      loyalty_score: INTEGER
   product_table:
-    name: "PRODUCTS"
+    name: PRODUCTS
     file_format: csv_file_format
-    bucket_path: "/products"
+    bucket_path: /products
     table_cols:
-      product_id: "VARCHAR(10)"
-      product_description: "VARCHAR(250)"
-      product_category: "VARCHAR(250)"
+      product_id: VARCHAR(10)
+      product_description: VARCHAR(250)
+      product_category: VARCHAR(250)
   transaction_table:
-    name: "TRANSACTIONS"
+    name: TRANSACTIONS
     file_format: json_file_format
-    bucket_path: "transactions"
+    bucket_path: transactions
     table_cols:
-      transaction: "VARIANT"
+      transaction: VARIANT
 view:
   transaction_view:
-    name: "TRANSACTION_DATA"
+    name: TRANSACTION_DATA
     definition: SELECT product_id, customer_id, count(product_id) AS purchase_count
                 FROM (
                 SELECT value:product_id::VARCHAR AS PRODUCT_ID, transaction:customer_id::STRING as customer_id
@@ -47,7 +50,7 @@ view:
                 )
                 GROUP BY (product_id, customer_id)
   final_view:
-    name: "FINAL_VIEW"
+    name: FINAL_VIEW
     definition: SELECT A.product_id, A.customer_id, A.purchase_count, B.loyalty_score, C.product_category
                 FROM TRANSACTION_DATA A
                 LEFT JOIN
