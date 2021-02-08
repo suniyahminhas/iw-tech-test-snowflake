@@ -5,11 +5,6 @@ import os
 
 
 class SnowflakeConnection:
-    """
-    Interacts with Snowflake
-
-    """
-
     def __init__(self, **kwargs):
         self.user = kwargs.get("user")
         self.password = kwargs.get("password")
@@ -40,11 +35,6 @@ class SnowflakeConnection:
         return conn_config
 
     def _get_private_key(self):
-        """
-        Uses the environment variable SNOWFLAKE_PRIVATE_KEY to get the passphrase
-        THis can be customised or overloaded to pick up the passphase from somewhere different
-        :return: private key
-        """
         with open(self.private_key_file, "rb") as key:
             p_key = serialization.load_pem_private_key(
                 key.read(),
@@ -60,11 +50,6 @@ class SnowflakeConnection:
         return private_key
 
     def get_conn(self):
-        """
-        Returns a snowflake_dir.connection object
-        :return: snowflake_dir.connection object
-        """
         conn_config = self._get_conn_params()
-        print(conn_config)
         conn = snowflake.connector.connect(**conn_config)
         return conn

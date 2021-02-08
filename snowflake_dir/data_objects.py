@@ -1,4 +1,9 @@
 import pandas as pd
+from snowflake.connector.errors import BadRequest
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class DBObject():
     def __init__(self, conn, object):
@@ -6,11 +11,18 @@ class DBObject():
         self.object = object
 
     def create_object(self, properties):
-        self.conn.cursor().execute(self.create_ddl(properties))
+        try:
+            self.conn.cursor().execute(self.create_ddl(properties))
+            logger.info(f'Successfully created instance of {self.object} in Snowflake')
+        except BadRequest as err:
+            logger.error(f'Bad Request for {self.object} {err}')
 
     def drop_object(self, name):
-        self.conn.cursor().execute(f'DROP {self.object} {name};')
-        print("done")
+        try:
+            self.conn.cursor().execute(f'DROP {self.object} {name};')
+            logger.info(f'Successfully dropped instance of {self.object} in Snowflake')
+        except BadRequest as err:
+            logger.error(f'Bad Request for {self.object} {err}')
 
 
 class Stage(DBObject):
@@ -62,6 +74,7 @@ class Pipe(DBObject):
         df = pd.read_sql(f'SHOW PIPES IN SCHEMA {properties.get("schema")};', self.conn)
         return df["notification_channel"][0]
 
+
 class View(DBObject):
     def __init__(self, conn):
         DBObject.__init__(self, conn=conn, object="VIEW")
@@ -87,5 +100,3 @@ class Integration(DBObject):
         df = pd.read_sql(f"DESC INTEGRATION {properties.get('name')};", self.conn)
         df = df.set_index("property")
         return df["property_value"]["STORAGE_AWS_EXTERNAL_ID"], df["property_value"]["STORAGE_AWS_IAM_USER_ARN"]
-
-

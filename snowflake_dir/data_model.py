@@ -29,7 +29,7 @@ class DBModel():
             logger.info(f'Storage Integration created')
             return Integration(self.conn).get_integration_props(self.object_properties.get('integration'))
         except ValueError:
-            logger.info(f'Storage Integration not created successfully: check properties in object_details')
+            logger.error(f'Storage Integration not created successfully: check properties in object_details')
 
     def execute_sql(self):
         self.create_stage()
@@ -41,9 +41,9 @@ class DBModel():
         try:
             stage_properties = self.object_properties.get('stage')
             Stage(self.conn).create_object(stage_properties)
-            logger.info(f'Stage created')
+            logger.info(f'Stage created within Snowflake')
         except ValueError:
-            logger.info(f'Stage not created successfully: check properties in object_details')
+            logger.error(f'Stage not created successfully: check properties in object_details')
 
     def create_file_format(self):
         for file_format, file_format_properties in self.object_properties.get('file_format').items():
@@ -51,7 +51,7 @@ class DBModel():
                 File_Format(self.conn).create_object(file_format_properties)
                 logger.info(f'{file_format} File Format created')
             except ValueError:
-                logger.info(f'{file_format} File Format not created successfully: check properties in object_details')
+                logger.error(f'{file_format} File Format not created successfully: check properties in object_details')
 
     def create_tables_and_pipes(self):
         for table, table_properties in self.object_properties.get('table').items():
@@ -59,7 +59,7 @@ class DBModel():
                 Table(self.conn).create_object(table_properties)
                 logger.info(f'{table} created')
             except ValueError:
-                logger.info(f'{table} table not created successfully: check properties in object_details')
+                logger.error(f'{table} table not created successfully: check properties in object_details')
 
             table_file_format = table_properties.get('file_format')
             pipe_properties = (table_properties,
@@ -67,24 +67,26 @@ class DBModel():
                                self.object_properties.get('stage').get('name'))
             try:
                 Pipe(self.conn).create_object(pipe_properties)
-                logger.info(f'Pipe for table {table} created')
+                logger.info(f'Pipe for table {table} created within Snowflake')
             except ValueError:
-                logger.info(f'Pipe for table {table} not created successfully: check properties in object_details')
+                logger.error(f'Pipe for table {table} not created successfully: check properties in object_details')
 
     def create_views(self):
         for view, view_properties in self.object_properties.get('view').items():
             try:
                 View(self.conn).create_object(view_properties)
-                logger.info(f'{view} created')
+                logger.info(f'{view} created within Snowflake')
             except ValueError:
-                logger.info(f'View {view} not created successfully: check properties in object_details')
+                logger.error(f'View {view} not created successfully: check properties in object_details')
 
 
     def get_pipe_arn(self):
         try:
-            return Pipe(self.conn).get_arn(self.get_db_credentials())
+            arn = Pipe(self.conn).get_arn(self.get_db_credentials())
+            logger.info(f'Pipe arn obtained from snowflake SHOW command')
+            return arn
         except ValueError:
-            logger.info(f'Pipe arn detail not obtained')
+            logger.error(f'Pipe arn not obtained; check all db_credentials are being passed through')
 
     def drop_objects(self):
         self.drop_views()
