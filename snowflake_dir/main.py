@@ -2,12 +2,11 @@ from infra.aws_pys3 import AWS_Connect
 from snowflake_dir.data_model import DBModel
 import yaml
 import logging
-import datetime
 
 # mode = "CREATE" to create model, mode = "DELETE" to delete model
-mode = "DELETE"
+mode = "CREATE"
 
-open(f'logs/logfile', 'w').close()
+open('logs/logfile.log', 'w').close()
 logging.basicConfig(filename=f'logs/logfile.log', level=logging.INFO,
                     format="%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s")
 logger = logging.getLogger(__name__)
