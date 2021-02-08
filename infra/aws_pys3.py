@@ -9,10 +9,10 @@ class AWS_Connect():
         self.access = 'AKIAWBJZDLJM4VMJ4K7Q' #os.environ['ACCESS_KEY']
         self.secret = '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' #os.environ['SECRET_KEY']
         self.s3 = boto3.resource('s3', aws_access_key_id=self.access, aws_secret_access_key=self.secret)
-        self.local_folder = object_properties.get('aws').get('data_path')#'../input_data/starter/'
+        self.local_folder = object_properties.get('aws').get('data_path')
         self.walks = os.walk(self.local_folder)
-        self.bucket_name = object_properties.get('stage').get('bucket') #'suniminhas20210206'
-        self.role_name = object_properties.get('aws').get('role_for_trust') #'snowflake_role2'
+        self.bucket_name = object_properties.get('stage').get('bucket')
+        self.role_name = object_properties.get('aws').get('role_for_trust')
 
 
     def notifications(self, arn):

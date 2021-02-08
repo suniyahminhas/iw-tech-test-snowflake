@@ -1,6 +1,6 @@
 from snowflake_dir.snowflake_connect import SnowflakeConnection
 import yaml
-from snowflake_dir.data_objects import Stage, Table, File_Format, Pipe, View, Integration
+from snowflake_dir.data_objects import Stage, Table, File_Format, Pipe, Integration
 import logging
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,6 @@ class DBModel():
         self.create_stage()
         self.create_file_format()
         self.create_tables_and_pipes()
-        self.create_views()
 
     def create_stage(self):
         try:
@@ -71,15 +70,6 @@ class DBModel():
             except ValueError:
                 logger.error(f'Pipe for table {table} not created successfully: check properties in object_details')
 
-    def create_views(self):
-        for view, view_properties in self.object_properties.get('view').items():
-            try:
-                View(self.conn).create_object(view_properties)
-                logger.info(f'{view} created within Snowflake')
-            except ValueError:
-                logger.error(f'View {view} not created successfully: check properties in object_details')
-
-
     def get_pipe_arn(self):
         try:
             arn = Pipe(self.conn).get_arn(self.get_db_credentials())
@@ -89,16 +79,10 @@ class DBModel():
             logger.error(f'Pipe arn not obtained; check all db_credentials are being passed through')
 
     def drop_objects(self):
-        self.drop_views()
         self.drop_table_pipes()
         self.drop_file_format()
         self.drop_stage()
         self.drop_integration()
-
-    def drop_views(self):
-        for view, view_properties in self.object_properties.get('view').items():
-            view_name = view_properties.get('name')
-            View(self.conn).drop_object(name = view_name)
 
     def drop_table_pipes(self):
         for table, table_properties in self.object_properties.get('table').items():

@@ -74,15 +74,6 @@ class Pipe(DBObject):
         df = pd.read_sql(f'SHOW PIPES IN SCHEMA {properties.get("schema")};', self.conn)
         return df["notification_channel"][0]
 
-
-class View(DBObject):
-    def __init__(self, conn):
-        DBObject.__init__(self, conn=conn, object="VIEW")
-
-    def create_ddl(self, properties):
-        return f"""create or replace view {properties.get('name')} as\n{properties.get('definition')};"""
-
-
 class Integration(DBObject):
     def __init__(self, conn):
         DBObject.__init__(self, conn=conn, object="STORAGE INTEGRATION")

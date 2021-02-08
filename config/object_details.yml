@@ -38,28 +38,5 @@ table:
     bucket_path: transactions
     table_cols:
       transaction: VARIANT
-view:
-  transaction_view:
-    name: TRANSACTION_DATA
-    definition: SELECT product_id, customer_id, count(product_id) AS purchase_count
-                FROM (
-                SELECT value:product_id::VARCHAR AS PRODUCT_ID, transaction:customer_id::STRING as customer_id
-                from TRANSACTIONS,
-                LATERAL FLATTEN
-                (input => transaction:basket)
-                )
-                GROUP BY (product_id, customer_id)
-  final_view:
-    name: FINAL_VIEW
-    definition: SELECT A.product_id, A.customer_id, A.purchase_count, B.loyalty_score, C.product_category
-                FROM TRANSACTION_DATA A
-                LEFT JOIN
-                CUSTOMERS B
-                on A.customer_id = B.customer_id
-                LEFT JOIN
-                PRODUCTS C
-                on A.product_id = C.product_id
-
-
 
 
