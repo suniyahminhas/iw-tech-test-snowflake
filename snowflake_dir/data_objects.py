@@ -1,6 +1,7 @@
 import pandas as pd
 from snowflake.connector.errors import BadRequest
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +34,8 @@ class Stage(DBObject):
         return f"""CREATE OR REPLACE STAGE {properties.get('name')}
         URL = 's3://{properties.get('bucket')}'
         CREDENTIALS =
-        (AWS_KEY_ID = 'AKIAWBJZDLJM4VMJ4K7Q'
-        AWS_SECRET_KEY = 'GX7Xwuj6J9cTPqSraRdEQIwsUqC7Lo5/w3FbrRSj');"""
+        (AWS_KEY_ID = '{os.environ['AWS_KEY_ID']}'
+        AWS_SECRET_KEY = '{os.environ['AWS_SECRET_KEY']}');"""
 
 
 class Table(DBObject):
