@@ -25,6 +25,9 @@ class DBObject():
         except BadRequest as err:
             logger.error(f'Bad Request for {self.object} {err}')
 
+    def create_ddl(self):
+        pass
+
 
 class Stage(DBObject):
     def __init__(self, conn):

@@ -4,7 +4,7 @@ import yaml
 import logging
 
 # mode = "CREATE" to create model, mode = "DELETE" to delete model
-mode = "DELETE"
+mode = "CREATE"
 
 open('logs/logfile.log', 'w').close()
 logging.basicConfig(filename=f'logs/logfile.log', level=logging.INFO,

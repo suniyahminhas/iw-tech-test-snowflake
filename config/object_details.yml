@@ -6,7 +6,7 @@ integration:
   arn: arn:aws:iam::415120972377:role/snowflake_role2
 stage:
   name: MY_BUCKET
-  bucket: suniminhas20210206111
+  bucket: testinginfinityworksaws
 file_format:
   csv_file_format:
     name: CSV_FILE_FORMAT
@@ -18,7 +18,7 @@ file_format:
     skip_header: 0
 table:
   customers_table:
-    name: CUSTOMERS
+    name: customers_adam
     file_format: csv_file_format
     bucket_path: /customers
     table_cols:
