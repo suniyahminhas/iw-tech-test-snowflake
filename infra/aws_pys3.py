@@ -6,8 +6,8 @@ from botocore.exceptions import ClientError
 class AWS_Connect():
     def __init__(self, object_properties):
         """entry point"""
-        self.access = 'AKIAWBJZDLJM4VMJ4K7Q' #os.environ['ACCESS_KEY']
-        self.secret = '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' #os.environ['SECRET_KEY']
+        self.access = os.environ['ACCESS_KEY']
+        self.secret = os.environ['SECRET_KEY']
         self.s3 = boto3.resource('s3', aws_access_key_id=self.access, aws_secret_access_key=self.secret)
         self.local_folder = object_properties.get('aws').get('data_path')#'../input_data/starter/'
         self.walks = os.walk(self.local_folder)
